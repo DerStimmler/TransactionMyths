@@ -11,13 +11,15 @@ namespace Backend
     {
         private static async Task Main(string[] args)
         {
-            Console.WriteLine("Backend is starting");
+            Thread.Sleep(5000);
+            
+            Logger.Write("Backend is starting");
 
             var endpoint = await ConfigureNServiceBus();
 
-            Console.WriteLine("Backend is running");
+            Logger.Write("Backend is running");
             Console.ReadKey();
-            Console.WriteLine("Backend says goodbye");
+            Logger.Write("Backend says goodbye");
             Thread.Sleep(2000);
         }
 
@@ -26,8 +28,8 @@ namespace Backend
             var endpointAddress = "Backend";
             var endpointConfiguration = new EndpointConfiguration(endpointAddress);
 
-            endpointConfiguration.Recoverability()
-                .AddUnrecoverableException<NullReferenceException>()
+            endpointConfiguration
+                .Recoverability()
                 .Immediate(settings => settings.OnMessageBeingRetried(retry =>
                 {
                     Logger.Write($"Message {retry.MessageId} will be retried immediately.");

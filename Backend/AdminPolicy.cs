@@ -5,7 +5,10 @@ using Shared;
 
 namespace Backend
 {
-    public class EnsureAtLeastOneCompanyAdminPolicy :
+    /// <summary>
+    ///     EnsureAtLeastOneCompanyAdminPolicy
+    /// </summary>
+    public class AdminPolicy :
         Saga<EnsureAtLeastOneCompanyAdminPolicyData>,
         IAmStartedByMessages<RequestRemoveAdminCommand>
     {
@@ -18,9 +21,11 @@ namespace Backend
             Logger.Write($"Saga found {Data.AdminCount} admins");
 
             if (Data.AdminCount == 1)
+            {
                 Logger.Write("Admin will not be removed since he is the last one standing :)");
-
-
+                return;
+            }
+            
             var command = new RemoveAdminCommand {UserId = message.UserId};
             await context.SendLocal(command);
 
@@ -33,7 +38,7 @@ namespace Backend
             mapper.ConfigureMapping<RequestRemoveAdminCommand>(command => command.CompanyId).ToSaga(saga => saga.CompanyId);
         }
     }
-    
+
     public class EnsureAtLeastOneCompanyAdminPolicyData
         : ContainSagaData
     {

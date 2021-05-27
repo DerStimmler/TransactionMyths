@@ -59,38 +59,13 @@ namespace Shared
 
         public static void RemoveAdmin(int userId)
         {
-            using (var connection = new SqlConnection(Configuration.GetConnectionString()))
-            {
-                connection.Open();
+            using var connection = new SqlConnection(Configuration.GetConnectionString());
+            connection.Open();
 
-                var transaction = connection.BeginTransaction(IsolationLevel.Snapshot);
-
-                var command = connection.CreateCommand();
-                command.Transaction = transaction;
-
-                try
-                {
-                    command.CommandText = $"UPDATE Users SET IsAdmin = 0 WHERE Id = {userId}";
-                    command.ExecuteNonQuery();
-
-                    transaction.Commit();
-                }
-                catch (Exception ex)
-                {
-                    Logger.Write($"Commit Exception Type: {ex.GetType()}");
-                    Logger.Write($"Message: {ex.Message}");
-
-                    try
-                    {
-                        transaction.Rollback();
-                    }
-                    catch (Exception ex2)
-                    {
-                        Logger.Write($"Rollback Exception Type: {ex2.GetType()}");
-                        Logger.Write($"Message: {ex2.Message}");
-                    }
-                }
-            }
+            var command = connection.CreateCommand();
+            command.CommandText = $"UPDATE Users SET IsAdmin = 0 WHERE Id = {userId}";
+            
+            command.ExecuteNonQuery();
         }
     }
 }
