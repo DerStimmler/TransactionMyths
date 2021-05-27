@@ -7,13 +7,13 @@ namespace Shared
 {
     public class Transactions
     {
-        public static void RemoveAdmin(int userId, int delayInSeconds, string txName, int isAdmin = 0)
+        public static void RemoveAdmin(int userId, int companyId, int delayInSeconds, string txName, int isAdmin = 0)
         {
             using (var connection = new SqlConnection(Configuration.GetConnectionString()))
             {
                 connection.Open();
 
-                var transaction = connection.BeginTransaction(IsolationLevel.Snapshot, txName );
+                var transaction = connection.BeginTransaction(IsolationLevel.Snapshot, txName);
                 Logger.Write($"{txName} started transaction scope");
 
                 var command = connection.CreateCommand();
@@ -21,7 +21,7 @@ namespace Shared
 
                 try
                 {
-                    command.CommandText = "SELECT COUNT(*) FROM Users Where IsAdmin = 1";
+                    command.CommandText = $"SELECT COUNT(*) FROM Users Where IsAdmin = 1 and CompanyId = {companyId}";
                     var admins = (int) command.ExecuteScalar();
                     Logger.Write($"{txName} found {admins} admins");
 
@@ -30,7 +30,7 @@ namespace Shared
 
                     if (admins > 1)
                     {
-                        command.CommandText = $"UPDATE Users SET IsAdmin = {isAdmin} WHERE Id = {userId}";
+                        command.CommandText = $"UPDATE Users SET IsAdmin = {isAdmin} WHERE Id = {userId} and CompanyId = {companyId}";
                         command.ExecuteNonQuery();
                         Logger.Write($"{txName} updated user with id {userId} to admin={isAdmin}");
                     }
@@ -51,6 +51,42 @@ namespace Shared
                     {
                         Logger.Write($"Rollback Exception Type: {ex2.GetType()}");
                         Logger.Write($"Transaction Name: {txName}");
+                        Logger.Write($"Message: {ex2.Message}");
+                    }
+                }
+            }
+        }
+
+        public static void RemoveAdmin(int userId)
+        {
+            using (var connection = new SqlConnection(Configuration.GetConnectionString()))
+            {
+                connection.Open();
+
+                var transaction = connection.BeginTransaction(IsolationLevel.Snapshot);
+
+                var command = connection.CreateCommand();
+                command.Transaction = transaction;
+
+                try
+                {
+                    command.CommandText = $"UPDATE Users SET IsAdmin = 0 WHERE Id = {userId}";
+                    command.ExecuteNonQuery();
+
+                    transaction.Commit();
+                }
+                catch (Exception ex)
+                {
+                    Logger.Write($"Commit Exception Type: {ex.GetType()}");
+                    Logger.Write($"Message: {ex.Message}");
+
+                    try
+                    {
+                        transaction.Rollback();
+                    }
+                    catch (Exception ex2)
+                    {
+                        Logger.Write($"Rollback Exception Type: {ex2.GetType()}");
                         Logger.Write($"Message: {ex2.Message}");
                     }
                 }

@@ -7,7 +7,7 @@ namespace Transaction1
     {
         private static void Main(string[] args)
         {
-            Transactions.RemoveAdmin(1, 5, "TX1");
+            Transactions.RemoveAdmin(1, 1, 5, "TX1");
             Logger.Write("TX1 done");
             Console.ReadKey();
         }

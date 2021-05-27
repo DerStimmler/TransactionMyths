@@ -1,0 +1,37 @@
+USE master
+
+IF EXISTS (SELECT * FROM sys.databases WHERE name = 'TestDB')
+BEGIN
+    ALTER DATABASE TestDB SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
+    DROP DATABASE TestDB;  
+END;
+CREATE DATABASE TestDB;
+ALTER DATABASE TestDB SET ALLOW_SNAPSHOT_ISOLATION ON;
+
+Go
+
+USE TestDB;
+
+CREATE TABLE Users (
+        Id INT PRIMARY KEY,
+        CompanyId INT,
+		IsAdmin BIT
+)
+
+CREATE TABLE Companies (
+        Id INT PRIMARY KEY
+)
+
+INSERT INTO Companies (Id)
+VALUES (1);
+INSERT INTO Companies (Id)
+VALUES (2);
+
+INSERT INTO Users (Id,CompanyId, IsAdmin)
+VALUES (1,1, 1);
+INSERT INTO Users (Id,CompanyId, IsAdmin)
+VALUES (2,1, 1);
+INSERT INTO Users (Id,CompanyId, IsAdmin)
+VALUES (3,2, 1);
+
+GO
