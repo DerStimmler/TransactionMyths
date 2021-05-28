@@ -24,14 +24,10 @@ CREATE TABLE Companies (
 
 INSERT INTO Companies (Id)
 VALUES (1);
-INSERT INTO Companies (Id)
-VALUES (2);
 
 INSERT INTO Users (Id,CompanyId, IsAdmin)
-VALUES (1,1, 1);
+VALUES (1, 1, 1);
 INSERT INTO Users (Id,CompanyId, IsAdmin)
-VALUES (2,1, 1);
-INSERT INTO Users (Id,CompanyId, IsAdmin)
-VALUES (3,2, 1);
+VALUES (2, 1, 1);
 
 GO

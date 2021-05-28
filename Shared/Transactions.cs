@@ -13,7 +13,7 @@ namespace Shared
 
             connection.Open();
 
-            var transaction = connection.BeginTransaction(IsolationLevel.RepeatableRead, txName);
+            var transaction = connection.BeginTransaction(IsolationLevel.ReadCommitted, txName); //change the isolation level here
             Logger.Write($"{txName} started transaction scope");
 
             var command = connection.CreateCommand();

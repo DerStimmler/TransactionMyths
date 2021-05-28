@@ -19,24 +19,26 @@ namespace ResetDb
 
             connection.Open();
 
+            var database = connection.Database;
+
             var command = connection.CreateCommand();
 
             command.Connection = connection;
 
             try
             {
-                command.CommandText = @"
+                command.CommandText = @$"
                         USE master
 
-                        IF EXISTS (SELECT * FROM sys.databases WHERE name = 'TestDB')
+                        IF EXISTS (SELECT * FROM sys.databases WHERE name = '{database}')
                         BEGIN
-                            ALTER DATABASE TestDB SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
-                            DROP DATABASE TestDB;  
+                            ALTER DATABASE {database} SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
+                            DROP DATABASE {database};  
                         END;
-                        CREATE DATABASE TestDB;
-                        ALTER DATABASE TestDB SET ALLOW_SNAPSHOT_ISOLATION ON;
+                        CREATE DATABASE {database};
+                        ALTER DATABASE {database} SET ALLOW_SNAPSHOT_ISOLATION ON;
 
-                        USE TestDB;
+                        USE {database};
 
                         CREATE TABLE Users (
                                 Id INT PRIMARY KEY,
@@ -50,15 +52,11 @@ namespace ResetDb
 
                         INSERT INTO Companies (Id)
                         VALUES (1);
-                        INSERT INTO Companies (Id)
-                        VALUES (2);
 
                         INSERT INTO Users (Id, CompanyId, IsAdmin)
                         VALUES (1, 1, 1);
                         INSERT INTO Users (Id, CompanyId, IsAdmin)
                         VALUES (2, 1, 1);
-                        INSERT INTO Users (Id, CompanyId, IsAdmin)
-                        VALUES (3, 2, 1);
                      ";
 
                 command.ExecuteNonQuery();

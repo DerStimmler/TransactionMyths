@@ -4,7 +4,7 @@
     {
         public static string GetConnectionString()
         {
-            return "";
+            return ""; //Add your connection string here
         }
     }
 }
