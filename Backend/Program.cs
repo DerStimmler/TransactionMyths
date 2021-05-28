@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Data.SqlClient;
-using System.Threading;
 using System.Threading.Tasks;
 using NServiceBus;
 using Shared;
@@ -11,8 +10,6 @@ namespace Backend
     {
         private static async Task Main(string[] args)
         {
-            Thread.Sleep(5000);
-            
             Logger.Write("Backend is starting");
 
             var endpoint = await ConfigureNServiceBus();
@@ -20,7 +17,6 @@ namespace Backend
             Logger.Write("Backend is running");
             Console.ReadKey();
             Logger.Write("Backend says goodbye");
-            Thread.Sleep(2000);
         }
 
         private static async Task<IEndpointInstance> ConfigureNServiceBus()

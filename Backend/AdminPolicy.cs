@@ -9,7 +9,7 @@ namespace Backend
     ///     EnsureAtLeastOneCompanyAdminPolicy
     /// </summary>
     public class AdminPolicy :
-        Saga<EnsureAtLeastOneCompanyAdminPolicyData>,
+        Saga<AdminPolicyData>,
         IAmStartedByMessages<RequestRemoveAdminCommand>
     {
         public async Task Handle(RequestRemoveAdminCommand message, IMessageHandlerContext context)
@@ -20,26 +20,28 @@ namespace Backend
 
             if (Data.AdminCount == 1)
             {
-                Logger.Write($"Policy restricted removel of admin with id {message.UserId}");
+                Logger.Write($"Policy restricted removal of admin with id {message.UserId}");
                 return;
             }
-            
+
             var command = new RemoveAdminCommand {UserId = message.UserId};
             await context.SendLocal(command);
 
-            Logger.Write($"Policy allowes removal of admin with id {message.UserId}");
-            
+            Logger.Write($"Policy allows removal of admin with id {message.UserId}");
+
             Data.AdminCount--;
         }
 
-        protected override void ConfigureHowToFindSaga(SagaPropertyMapper<EnsureAtLeastOneCompanyAdminPolicyData> mapper)
+        protected override void ConfigureHowToFindSaga(SagaPropertyMapper<AdminPolicyData> mapper)
         {
-            mapper.ConfigureMapping<RequestRemoveAdminCommand>(command => command.CompanyId).ToSaga(saga => saga.CompanyId);
+            mapper
+                .ConfigureMapping<RequestRemoveAdminCommand>(command => command.CompanyId)
+                .ToSaga(saga => saga.CompanyId);
         }
     }
-    
 
-    public class EnsureAtLeastOneCompanyAdminPolicyData
+
+    public class AdminPolicyData
         : ContainSagaData
     {
         public int AdminCount { get; set; }

@@ -19,7 +19,7 @@ namespace Backend
 
             var command = connection.CreateCommand();
             command.CommandText = $"UPDATE Users SET IsAdmin = 0 WHERE Id = {message.UserId}";
-            
+
             command.ExecuteNonQuery();
 
             Logger.Write($"Removed admin with id '{message.UserId}'");

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Reflection;
 using System.Threading.Tasks;
 using NServiceBus;
 using Shared;
@@ -32,17 +31,17 @@ namespace Api
             };
 
             await _endpoint.Send(command);
-            
-            Logger.Write($"admin with id '{userId}' in company '{companyId}' should be degraded");
+
+            Logger.Write($"Admin with id '{userId}' in company '{companyId}' should be degraded");
         }
 
         private static async Task<IEndpointInstance> ConfigureNServiceBus()
         {
             var endpointAddress = "Api";
             var endpointConfiguration = new EndpointConfiguration(endpointAddress);
-            
+
             endpointConfiguration.SendOnly();
-            
+
             endpointConfiguration.Recoverability()
                 .AddUnrecoverableException<NullReferenceException>()
                 .Immediate(settings => settings.OnMessageBeingRetried(retry =>
@@ -60,7 +59,7 @@ namespace Api
                     Logger.Write($@"Message {failed.MessageId} will be sent to the error queue.");
                     return Task.CompletedTask;
                 }));
-            
+
             endpointConfiguration.EnableInstallers();
 
             var transport = endpointConfiguration.UseTransport<LearningTransport>();
