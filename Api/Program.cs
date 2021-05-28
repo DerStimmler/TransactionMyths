@@ -33,7 +33,7 @@ namespace Api
 
             await _endpoint.Send(command);
             
-            Logger.Write($"user with id '{userId}' in company '{companyId}' should be degraded");
+            Logger.Write($"admin with id '{userId}' in company '{companyId}' should be degraded");
         }
 
         private static async Task<IEndpointInstance> ConfigureNServiceBus()

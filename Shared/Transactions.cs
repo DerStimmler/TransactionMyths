@@ -13,7 +13,7 @@ namespace Shared
             {
                 connection.Open();
 
-                var transaction = connection.BeginTransaction(IsolationLevel.Snapshot, txName);
+                var transaction = connection.BeginTransaction(IsolationLevel.RepeatableRead, txName);
                 Logger.Write($"{txName} started transaction scope");
 
                 var command = connection.CreateCommand();
@@ -23,10 +23,10 @@ namespace Shared
                 {
                     command.CommandText = $"SELECT COUNT(*) FROM Users Where IsAdmin = 1 and CompanyId = {companyId}";
                     var admins = (int) command.ExecuteScalar();
+                    
                     Logger.Write($"{txName} found {admins} admins");
 
                     Thread.Sleep(delayInSeconds * 1000);
-
 
                     if (admins > 1)
                     {
