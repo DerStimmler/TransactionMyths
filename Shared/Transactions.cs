@@ -5,7 +5,7 @@ using System.Threading;
 
 namespace Shared
 {
-    public class Transactions
+    public static class Transactions
     {
         public static void RemoveAdmin(int userId, int companyId, int delayInSeconds, string txName, int isAdmin = 0)
         {

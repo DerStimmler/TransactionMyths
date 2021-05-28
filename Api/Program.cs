@@ -5,7 +5,7 @@ using Shared;
 
 namespace Api
 {
-    internal class Program
+    internal static class Program
     {
         private static IEndpointInstance _endpoint;
 

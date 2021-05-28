@@ -52,13 +52,13 @@ In conclusion the technical issue is that you have to read the whole table to ch
 The key to solve this issue is to reduce all data which is needed to check the invariant to one database row.
 
 For that we are using a saga from NServiceBus. For understanding: A saga is a handler which can hold a state by persisting data to a database row.
-We use it as a state machine which holds the information how many admins are exist in a company. So it receives the request to degrade a user from the api, checks the invariant, sends a new command to really degrade the user if the invariant isn't violated and reduces it's admin count.
+We use it as a state machine which holds the count of how many admins exist in a company. So it receives the request to degrade a user from the api, checks the invariant, sends a new command to really degrade the user if the invariant isn't violated and reduces it's admin count.
 
 The solution folder `SagaTransaction` contains two projects.
 
-The project `Api` simulates the api which receives the degradation request from the client and sends a corresponding command into the bus.
+The project `Api` simulates the api which receives the degradation request from the client and sends a corresponding command to the bus.
 
-The `Backend` project handles these commands.
+The `Backend` project handles these commands with the mentioned saga and a handler which executes a simple sql statement that degrades a user.
 
 Now you can run the `Api` project to put some degradation request messages into the queue. When you are starting the `Backend` project all messages from the queue get handled simultaneously by the saga handler.
 Because we configured the NServiceBus endpoint with the transaction mode "SendsWithAtomicReceive" every message has to be handled successfully before it's removed from the input queue and all messages that the handler tries to send are only sent if the handling is successful.

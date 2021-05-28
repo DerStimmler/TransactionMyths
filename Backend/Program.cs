@@ -6,7 +6,7 @@ using Shared;
 
 namespace Backend
 {
-    internal class Program
+    internal static class Program
     {
         private static async Task Main(string[] args)
         {

@@ -1,6 +1,6 @@
 ﻿namespace Shared
 {
-    public class Configuration
+    public static class Configuration
     {
         public static string GetConnectionString()
         {
