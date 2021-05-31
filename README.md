@@ -36,7 +36,7 @@ For that they call the `RemoveAdmin()` method which creates a SqlConnection and 
 
 Note the `Thread.Sleep()` call through which the transactions overlap which helps to simulate a concurrent execution.
 
-When you run the projects `Transaction1` and `Transaction2` at the same time they both read that there are two admins in the company and therefore degrade the user. As a result no admin is left. That's because the database uses pessimistic concurrency with the IsolationLevel "Read Committed" by default. Therefore a lock gets acquired before reading and released immediately after reading is finished. So both transactions run parallel and read the same admin count of two.
+When you run the projects `Transaction1` and `Transaction2` at the same time (in Rider you can use a compound for that) they both read that there are two admins in the company and therefore degrade the user. As a result no admin is left. That's because the database uses pessimistic concurrency with the IsolationLevel "Read Committed" by default. Therefore a lock gets acquired before reading and released immediately after reading is finished. So both transactions run parallel and read the same admin count of two.
 
 In order to not violate the invariant, the time for how long the lock is acquired, needs to be changed. You can configure it by passing in an `IsolationLevel` to the `.BeginTransaction()` method.
 The only two possible IsolationLevels for this scenario are "RepeatableRead" and "Serializable" since both of them acquire the lock from the beginning of the transaction until the end. As a result only one transaction completes while the other one fails because the required records are locked and a ConcurrencyException occurs. The invariant is kept.
@@ -60,5 +60,9 @@ The project `Api` simulates the api which receives the degradation request from 
 
 The `Backend` project handles these commands with the mentioned saga and a handler which executes a simple sql statement that degrades a user.
 
-Now you can run the `Api` project to put some degradation request messages into the queue. When you are starting the `Backend` project all messages from the queue get handled simultaneously by the saga handler.
+Now you can run the `Api` project to put some degradation request messages into the queue.
+
+When you are starting the `Backend` project all messages from the queue get handled simultaneously by the saga handler.
 Because we configured the NServiceBus endpoint with the transaction mode "SendsWithAtomicReceive" every message has to be handled successfully before it's removed from the input queue and all messages that the handler tries to send are only sent if the handling is successful.
+Now what happens is that one message will start the saga which creates a database entry for that saga. The saga also checks the invariant and sends an message to the `RemoveAdminHandler` which degrades the user.
+All other messages also try to start the saga but an Exception occurs because the database entry already exists. The selected transaction mode takes care that no message is sent to the `RemoveAdminHandler` and the messages get retried. When retrying they will be handled successfully and no additional user gets degraded because only one admin is left.
